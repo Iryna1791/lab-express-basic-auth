@@ -18,7 +18,14 @@ router.get("/main", (req, res) => {
 })
 
 router.get("/private", isLoggedIn, (req, res) => {
-  res.render("auth/private")
+  if(req.session.currentUser){
+    res.render("auth/private", { loggedIn: true });
+  }
+  else {
+    res.render("index", { loggedIn: false });
+  }
+
+  
 })
 
 module.exports = router;

@@ -53,7 +53,7 @@ router.post('/login', async (req, res) => {
     
         if(passwordCheck){
            console.log(req.session)
-           //req.session.currentUser = foundUser
+           req.session.currentUser = foundUser
            res.redirect(`/auth/profile/${foundUser.username}`)
         }
 
@@ -79,10 +79,12 @@ router.post('/login', async (req, res) => {
 
 // Profile route
 router.get('/profile/:username', (req, res) => {
+    
     const { username } = req.params;
        
+    
     User.findOne({ username })
-        .then(foundUser => res.render('auth/profile', foundUser))
+        .then(foundUser => res.render('auth/profile', {foundUser,loggedIn: true }))
         .catch(err => console.log(err))
 })
 

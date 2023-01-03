@@ -15,6 +15,8 @@ const session = require("express-session")
 // https://www.npmjs.com/package/hbs
 const hbs = require('hbs');
 
+const MongoStore = require("connect-mongo")
+
 const app = express();
 
 
@@ -22,6 +24,18 @@ const app = express();
 
 // ℹ️ This function is getting exported from the config folder. It runs most middlewares
 require('./config')(app);
+
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        cookie: {
+            maxAge: 1000 * 60 * 60
+        },
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGO_URI
+        })
+    })
+)
 
 // default value for title local
 const projectName = 'lab-express-basic-auth';
@@ -39,7 +53,9 @@ const authRoutes = require('./routes/auth.routes');
  
 app.use('/auth', authRoutes);
 
-require("./config/session.config")(app);
+
+
+/* require("./config/session.config")(app); */
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require('./error-handling')(app);

@@ -5,6 +5,8 @@ const saltRounds = 10;
 
 const User = require('../models/User.model');
 
+const { isLoggedIn, isLoggedOut} = require('../middleware/route-guard');
+
 // Signup
 router.get('/signup', (req, res) => {
     res.render('auth/signup')
@@ -29,24 +31,49 @@ router.get('/login', (req, res)=>{
     res.render('auth/login')
 })
 
-router.post('/login', (req, res) => {
-    console.log(req.body)
-
+router.post('/login', async (req, res) => {
+    console.log('SESSION =====> ', req.session);
     const { username, password } = req.body;
+    try{
+
+        if (username === "" || password === "") {
+            res.render("auth/login", {
+                errorMessage: "Please enter both username and password to login."
+            })
+            return
+        }
     
-    User.findOne({ username })
+        const foundUser = await User.findOne({username})
+    
+        if (!foundUser) {
+            res.render('auth/login', { errorMessage: 'Incorrect password, try again' })
+        }
+    
+        const passwordCheck = await bcrypt.compare(password,foundUser.password )
+    
+        if(passwordCheck){
+           console.log(req.session)
+           //req.session.currentUser = foundUser
+           res.redirect(`/auth/profile/${foundUser.username}`)
+        }
+
+    }
+    /* User.findOne({ username })
         .then(foundUser => {
             return bcrypt.compare(password, foundUser.password)
                 .then(result => {
                     if(result){
+                        req.session.currentUser = result
                         res.redirect(`/auth/profile/${foundUser.username}`)
                     }
                     else {
                         res.render('auth/login', { errorMessage: 'Incorrect password, try again' })
                     }
             })
-    })
-    .catch(err => console.log(err))
+    }) */
+  catch (error){
+    console.log(error)
+  }
 
 })
 
@@ -59,5 +86,14 @@ router.get('/profile/:username', (req, res) => {
         .catch(err => console.log(err))
 })
 
+
+router.post('/logout', isLoggedIn, (req, res) => {
+    console.log("before destroy" , req.session.currentUser)
+    req.session.destroy(err => {
+      if (err) console.log(err);
+      console.log("after destroy" , req.session)
+      res.redirect('/main');
+    });
+  });
 
 module.exports = router;

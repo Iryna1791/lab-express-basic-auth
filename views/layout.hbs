@@ -10,13 +10,38 @@
   </head>
 
   <body>
-    <nav>
-      <ul>
-        <li> <a href="/">Home</a></li>
-            <li> <a href="/auth/signup">Signup</a></li>
-            <li> <a href="/auth/login">Login</a></li>
-      </ul>
-    </nav>
+     {{#if loggedIn}}
+      <nav>
+         <ul>
+            <li id="to-left">
+            <p><a href="/"> Home </a></p>
+            </li>
+            <li id="to-right">
+             <form id="logout-form" action="/auth/logout" method="POST">
+               <button>Logout</button>
+            </form>
+             <a href="/auth/profile">Profile</a> 
+            </li>
+         </ul>
+      </nav>
+     {{else}}
+      <nav>
+         <ul>
+            <li id="to-left">
+            <p><a href="/"> Home </a></p>
+            </li>
+            <li id="to-right">
+            <a href="/auth/signup">Signup</a> <span> | </span>
+            <a href="/auth/login">Login</a>
+            <li> <a href="/main">Cat Img</a></li>
+            <li> <a href="/private">gif</a></li>
+            <li><form id="logout-form" action="/auth/logout" method="POST">
+               <button>Logout</button>
+            </form></li>
+            </li>
+         </ul>
+      </nav>
+     {{/if}}
     {{{body}}}
 
     <script src="/js/script.js"></script>
